@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 // CREATE
-app.route("/todo")
+app.route("/todos")
     .post(async (req, res) => {
         try {
             const { description } = req.body;
@@ -33,10 +33,36 @@ app.route("/todo")
         } catch (err) {
             console.error(err.message);
         }
-    });
-// UPDATE
+    })
 
-// DELETE
+// UPDATE
+app.route("/todos/:id")
+    .put(async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { description } = req.body;
+            const updatedTodo = await pool.query(
+                "UPDATE todo SET description = $1 where todo_id = $2;",
+                [description, id]
+            );
+
+            res.json("Todo list updated.");
+
+        } catch (err) {
+            console.error(err.message);
+        }
+    })
+
+    // DELETE
+    .delete(async (req, res) => {
+        try {
+            const { id } = req.params;
+            const delTodo = await pool.query("DELETE FROM todo WHERE todo_id = $1", [id]);
+            res.json("Todo Deleted.");
+        } catch (err) {
+            console.error(err.message);
+        }
+    })
 
 const port = 5000;
 app.listen(port, () => {
